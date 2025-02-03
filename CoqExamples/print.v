@@ -1,0 +1,2 @@
+Print bool.
+Print nat.
