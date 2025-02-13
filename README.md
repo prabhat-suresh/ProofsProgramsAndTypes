@@ -168,3 +168,27 @@ A equivalent to B is same as A -> B ^ B -> A
 
 A -> not (not A) is provable but the converse is not
 Note: this is for all A. For a particular A it's possible through case by case analysis (like in the case of negb(negb x))
+
+DeMorgan's Laws
+```
+not a \/ not b === not (a /\ b) (converse i.e. reverse direction is not provable, though forward is)
+not a /\ not b === not (a \/ b) (Both directions provable)
+
+```
+[DeMorgan](./CoqExamples/demorgan.v)
+
+> A few useful tactics to keep in mind: refine, exact, intros, intuition, eauto, induction, destruct, inversion
+
+expression language --> (Compiled to) Stack machine
+C --> X86 assembly
+
+exp = nat | exp op exp
+
+### Stack Machine instructions
+1. push nat
+2. pop
+3. exec op
+
+[Stack Machine compiler](./CoqExamples/expr_to_stack_machine.v)
+
+To proove that the compiler works as expected we have to express it in coq's language: Gallina (Denotational semantics)
