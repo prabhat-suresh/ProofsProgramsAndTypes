@@ -19,7 +19,7 @@
 
 ### Check the course page and set up Coq and editor
 
-> Reference Book: Certified Programming with Dependent Types
+> Reference Book: [Certified Programming with Dependent Types](./cpdt.pdf)
 
 Programming Language (Typed) ~== Proof Assistant
 Type Checking ~== Proof Checking
@@ -191,6 +191,60 @@ exp = nat | exp op exp
 
 [Stack Machine compiler](./CoqExamples/expr_to_stack_machine.v)
 
-To proove that the compiler works as expected we have to express it in coq's language: Gallina (Denotational semantics)
+- To proove that the compiler works as expected we have to express it in coq's language: Gallina (Denotational semantics)
+- The theorem that we want to prove is a weak lemma and thus the induction hypothesis is also weak and not sufficient to prove the theorem.
+- Often in such cases it is easier to prove a more general theorem and then state that the weak lemma is a special case of the more general theorem. That's because the more general theorem also has a more general and powerful induction hypothesis.
 
 [Test1](./CoqExamples/test1.v)
+
+## Correctness by construction
+- Rule out bad behaviour by using types
+
+```coq
+list : forall A:Type, Type = Type -> Type
+
+Inductive list (A : Type) : Type :=
+    nil : list A | cons : A -> list A -> list A.
+
+nil : forall A : Type, list A.
+cons : forall A : Type, A -> list A -> list A.
+
+Arguments nil {A}. (* A is an implicit argument which is maximally inserted *)
+          nil [A]. (* warned by compiler as it's implicit but not maximally inserted *)
+Arguments cons {A}.
+```
+
+- The coq interpreter solves the unification problem by looking at the context and inferring the types.
+- let x in the following function be an implicit argument
+```coq
+f: (x: T1) -> (y: T2) -> T3
+```
+- if f is maximally inserted then Check f will give f _ that is T2 -> T3
+- if f is not maximally inserted then Check f will give f that is T1 -> T2 -> T3
+- f (y=t) or equivalently @f _ t can be used to make the implicit arguments explicit
+- That is for functions with more than one argument. For one argument functions there is no choice - it has to be maximally inserted
+
+- The A in the definition of list is a parameter and has a scope till the end of the definition
+- In the following definition A is an index
+```coq
+Inductive list : forall A:Type, Type -> Type :=
+    | nil {A: Type}: list A (* nil : list nat - this definition will rule out the creation of lists of any other type other than nat *)
+    | cons {A: Type}: A -> list A -> list A.
+```
+- The above definition is equivalent to the one before except that we didn't have to write Arguments nil {A} etc.
+- But the more interesting part of using index instead of parameters is when we
+
+- Consider the following expression language with two types of values
+```coq
+Inductive exp :=
+    | Bconst: bool -> exp
+    | Nconst: nat -> exp
+    | Plus: exp -> exp -> exp
+    | And: exp -> exp -> exp
+    | If: exp -> exp -> exp -> exp
+```
+- This exp allows creation of expressions like Plus (Bconst true) (Nconst 1) which are semantically ill-typed
+- So we use index instead of parameter like [bool and nat expr](./CoqExamples/bool_nat_expr.v) to ensure correctness by construction
+
+- We haven't seen types of the kind [Absurd foo](./CoqExamples/absurd_foo.v)
+- This function can be used to make sure at compile time that the value received is indeed of type A using the power of dependent types [recover](./CoqExamples/recover.v)
