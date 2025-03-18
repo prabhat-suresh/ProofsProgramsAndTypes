@@ -120,6 +120,8 @@ list A: Type -> Type (list can be thought of as Type -> Type)
 
 [ANDB](./CoqExamples/andb.v) and1
 
+Gallena has no Polymorphism. The dependent functions and type universes are so powerful that including them in the language gives us polymorphism as a result.
+
 #### Prop
 A proposition should not be reduced to the world of true and false. They are mathematical/propositional statements.
 andb is not inductively defined whereas and is
@@ -248,3 +250,52 @@ Inductive exp :=
 
 - We haven't seen types of the kind [Absurd foo](./CoqExamples/absurd_foo.v)
 - This function can be used to make sure at compile time that the value received is indeed of type A using the power of dependent types [recover](./CoqExamples/recover.v)
+
+#### Vector type
+- List of length n
+```coq
+Inductive vector (A : Type) : nat -> Type :=
+    | vnil : vector A 0
+    | vcons : forall n : nat, A -> vector A n -> vector A (S n).
+
+Arguments vnil {A}.
+Arguments vcons {A} _ {n}.
+(* vcons : forall A : Type, A -> forall n : nat, vector A n -> vector A (S n) A and n are implicit arguments and we name them but we don't know the first argument's (whose type is A) name and thus put an _ *)
+```
+[vector](./CoqExamples/vector.v)
+
+#### Red Black Tree
+- A red black tree is a binary search tree where each node is either red or black
+- The root is black (not really important as if it's red then it can be changed to black (But black nodes can't be changed to red))
+- Every path from the root to a leaf has the same number of black nodes
+- Every red node has black children
+[Red Black Tree](./CoqExamples/red_black_tree.v)
+
+### Phantom Types
+- Phantom types are types that are not used in that particular function but used elsewhere to ensure correctness.
+[Phantom Types](./CoqExamples/phantom_types.v)
+
+#### Less than or equal to and equality
+- We like to think of them as mathematical statements rather than booleans.
+- Define inductive types that capture the mathematical statements such that it's correct by construction.
+[less than or equal to](./CoqExamples/lte_data_type.v)
+- The general equality type (Polymorphic) is not built in. It's also defined inductively with the same idea as for nats
+[general equality](./CoqExamples/general_eq.v)
+- In general, the general equality is not decidable. However, just like other undecidable problems, we can define it nevertheless.
+- eq is a very mysterious type. The definition of eq might lead us to believe that all proofs of x=y are eq_refl. However, this is not the case. You cannot prove the following lemma which captures this notion as it's not even consistent with the types let alone be wrong.
+```coq
+Definition foo := forall {A: Type} (x y: A) (pf: x=y) -> pf = eq_refl.
+(* Heck you can't even prove the following lemma (though it's well typed unlike the above one) *)
+Lemma foo : forall {A: Type} (x: A) (pf: x=x), pf = eq_refl.
+```
+- The mathematics of eq and paths in a topological space are similar. eq_refl is like the trivial path from x to x. There can be other non-trivial paths from x to x. These other ways of constructing eq will not be possible directly as a term, but could be produced indirectly like False.
+- eq_refl can be used only in the case that two terms are equal by definition.
+- In mathematics, the extentiality principle - forall f,g: A -> B, forall x: A, f x = g x -> f = g. But in type theory this is blasphemy. As a computer scientist, this is inacceptable as this would mean bubble sort, merge sort and the worst sorting algorithms are all the same. The functions f and g carry computational value.
+- Constructive logic is more powerful and richer than classical logic. Classical logic is a subset that can be embedded in constructive logic using Continuation Passing Style (CPS)
+
+## Props
+- So far you could work completely without Props. But Props are useful when you only worry about the mathematical propositions and not the computations involved.
+- Just like the Ocaml compiler does all the type checks at compile time and the run time is stripped of all the types, if you extract coq to Ocaml or Haskell the Props will be stripped off in the resulting code which is still safe if used that way (just like the Ocaml runtime having type guarantees after compiling).
+- Removing Props is fine as we just need the proof term and not the computation involved.
+- But this has a caveat. You can't return a Type or Set from a match if you inspect the computation involved in the Prop term.
+- You can however return a Prop from such a match as all of them eventually will be removed.
