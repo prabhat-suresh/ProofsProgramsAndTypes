@@ -299,3 +299,29 @@ Lemma foo : forall {A: Type} (x: A) (pf: x=x), pf = eq_refl.
 - Removing Props is fine as we just need the proof term and not the computation involved.
 - But this has a caveat. You can't return a Type or Set from a match if you inspect the computation involved in the Prop term.
 - You can however return a Prop from such a match as all of them eventually will be removed.
+
+## Tactics
+- Automating proofs using tactics (imperative languages which are allowed to fail) using Ltac
+- Ltac is an imperative language with bits of logical programming
+- Difference between . and ; -> t1 . t2 applies t2 to one goal in t1 whereas t1 ; t2 applies t2 to all the goals in t1
+- Ltac is a typeless or dynamically typed language in some sense
+```coq
+Ltac name := Ltac_script. (* syntax for defining an Ltac script *)
+
+Ltac induct_on_n n := induction n; compute
+
+(* Defining the assumption tactic on our own without using the standard library *)
+Ltac my_assumption := match goal with
+    | Hyp: ?G |- ?G => exact Hyp
+end.
+```
+- The match in Ltac is not a pattern matching, but rather a search where if a branch fails, the search continues with the next branch.
+- A typical example of an Ltac script:
+```coq
+Ltac foo := repeat match goal with
+    | ... |- ... => _
+    | ... |- ... => _
+    | ... |- ... => _
+    | _ => simple; eauto
+end.
+```
