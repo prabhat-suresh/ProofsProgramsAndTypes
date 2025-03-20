@@ -325,3 +325,4 @@ Ltac foo := repeat match goal with
     | _ => simple; eauto
 end.
 ```
+[Test2](./CoqExamples/test2.v)
