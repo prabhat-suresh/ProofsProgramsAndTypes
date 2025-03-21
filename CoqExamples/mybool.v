@@ -41,6 +41,9 @@ Check eq_refl.
 
 (* Using refine *)
 Lemma notnot_id' (x : bool) : negb (negb x) = x.
-  refine (fun b => _).
 Proof.
+  refine (match x with
+          | true => eq_refl
+          | false => eq_refl
+          end).
 

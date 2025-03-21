@@ -1,6 +1,8 @@
 Check option.
 Print option.
 
+Check tt.
+
 Definition recover {A} (o : option A) : match o with
                                             | Some _ => A
                                             | None => unit

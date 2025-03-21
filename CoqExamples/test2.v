@@ -62,18 +62,37 @@ Inductive Vlog : nat -> Type :=
     | Vdispense_vada : forall n, Vlog (S (S n)) -> Vlog n.
 
 (*Part (b)*)
-Variant Action: Set :=
-    | Coin
-    | Toffee
-    | Vada.
+Definition ComputeSales {n : nat} (v : Vlog n) : nat :=
+    n.
 
-Inductive LogSequence : Type :=
-    | LogSequence_nil : LogSequence
-    | LogSequence_cons : Action -> LogSequence -> LogSequence.
+(* Test 2 Question paper March 21 2025 *)
+(*Question 1*)
+(* Same as in Test 1 (2023) *)
 
-Fixpoint compute_sales (l: LogSequence) : nat :=
-    match l with
-        | LogSequence_nil => 0
-        | LogSequence_cons Coin l' => 1 + compute_sales l'
-        | LogSequence_cons _ l' => compute_sales l'
-    end.
+(*Question 2*)
+(* Part (a) *)
+Inductive Odd : nat -> Prop :=
+    | Odd_1 : Odd (1)
+    | Odd_SS : forall n, Odd n -> Odd (S (S n)).
+
+(*Part (b)*)
+Check (Odd 5).
+
+Lemma Odd5: Odd 5.
+Proof.
+    apply Odd_SS.
+    apply Odd_SS.
+    apply Odd_1.
+    Show Proof.
+Qed.
+
+(*Question 3*)
+Inductive le : nat -> nat -> Prop :=
+    | le_zero n : le 0 n
+    | le_succ m n : le m n -> le (S m) (S n).
+
+Check le_zero.
+Check le_succ.
+
+(*Question 4*)
+(* Same as in Test 2 (2023) *)

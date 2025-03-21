@@ -54,7 +54,7 @@ Type Checking ~== Proof Checking
 - exp: A -> Most important judgement that Coq verifies
 
 ```coq
-Lemme name: type.
+Lemma name: type.
 Proof.
     tactics
 Qed.
@@ -68,18 +68,20 @@ Compute exp. (* simplifies and then Checks *)
 ```
 
 #### Gallina Expression
+```
 exp = Variable
-        | f e (function application)
-        | fun x:A => exp (function abstraction)
+    | f e (function application)
+    | fun x:A => exp (function abstraction)
+```
 
 #### Calculus of Construction
 Types: Type universes and function types
 
 [Square example](./CoqExamples/square.v)
+
 [Types of Bool and Nat](./CoqExamples/print.v) -> inductive sets
 
-<!-- TODO: AND, OR, NOT -->
-[AND](./CoqExamples/andb.v)
+[andb](./CoqExamples/andb.v)
 
 ### Defining new types (inductive definition)
 
@@ -99,44 +101,52 @@ Types: Type universes and function types
 - If you follow the first principles:
     1. every statement is a type
     2. A proof of the statement is an element of that type
-    to prove for all x -> P x, we will end up with dependently typed functions
+
+To prove for all x -> P x, we will end up with dependently typed functions
 - CoC + Inductive types (also Type Universes, which we'll look into later) makes up the whole system
 - eq_refl is an element of type x=x for all x (it does this by taking in implicit arguments)
 
 #### forall
 forall A:Prop A -> A
+
 fun A: Prop => fun a:A => a
 
 forall a:A, B a
+
 fun a.A, ...
 
 ### Type universes
 Prop, Set, Type
-Prop is built into the language. You cannot produce it using induction or in any other way.
-Set is an inductive type.
 
-list is not a type. "list of a" is a type
+- Prop is built into the language. You cannot produce it using induction or in any other way.
+- Set is an inductive type.
+
+> list is not a type. "list of a" is a type
 list A: Type -> Type (list can be thought of as Type -> Type)
 
-[ANDB](./CoqExamples/andb.v) and1
+[ANDB](./CoqExamples/andb.v)
 
-Gallena has no Polymorphism. The dependent functions and type universes are so powerful that including them in the language gives us polymorphism as a result.
+Gallena has no Polymorphism baked into the language. The dependent functions and type universes are so powerful that including them in the language gives us polymorphism automatically as a result.
 
 #### Prop
-A proposition should not be reduced to the world of true and false. They are mathematical/propositional statements.
-andb is not inductively defined whereas and is
+- A proposition should not be reduced to the world of true and false. They are mathematical/propositional statements.
+andb is not inductively defined whereas "and" is
 
+```coq
 Inductive and (A B: Prop): Prop
 | conj: A -> B -> and A B
-(takes a pair of proofs of A and B then produces a proof of their conjunction)
+(* takes a pair of proofs of A and B then produces a proof of their conjunction *)
+```
 
-andb is defined with the appropriate match as bool is an inductive type
-andb: bool -> bool -> bool
-
-but and: Prop -> Prop -> Prop
+andb is defined with the appropriate match (as bool is an inductive type)
+> andb: bool -> bool -> bool
+but
+> and: Prop -> Prop -> Prop
 A and B are propositions, what is the proposition A ^ B: Prop?
 
+```coq
 Inductive and (A B : Prop) : Prop :=  conj : A -> B -> A /\ B.
+```
 the conj (conjunction) constructor is used to construct the proof of A and B
 
 [and](./CoqExamples/and.v)
@@ -151,25 +161,29 @@ Inductive or (A B : Prop) : Prop :=
 [or](./CoqExamples/or.v)
 
 False is defined as follows:
+```coq
 Inductive False : Prop :=  .
+```
 
-It's a type that has no elements (otherwise that element would be a proof of False)
+- It's a type that has no elements (otherwise that element would be a proof of False)
 
-not of A cannot be defined in constructive logic and hence LEM (law of excluded middle) double negation etc cannot be proved.
+> not of A cannot be defined in constructive logic and hence LEM (law of excluded middle), double negation etc cannot be proved.
 
-[not and false](./CoqExamples/false.v)
+[not and false](./CoqExamples/not_and_false.v)
 
 not : Prop -> Prop
+```coq
 Definition not (A: Prop) := A -> False
+```
 (Currency notes are promises) We are not proving False. We promise to prove Fale by providing an element of it if an element of A is given, which indirectly implies that there is no element of A.
 
 Everything here assumes that the system is consistent (Refer Hurdle's incompleteness theorem)
 
-Equivalence of not (not A) and A is not provable in constructive logic
+> Equivalence of not (not A) and A is not provable in constructive logic
 A equivalent to B is same as A -> B ^ B -> A
 
 A -> not (not A) is provable but the converse is not
-Note: this is for all A. For a particular A it's possible through case by case analysis (like in the case of negb(negb x))
+[Note!]: this is for all A. For a particular A it's possible through case by case analysis (like in the case of negb(negb x))
 
 DeMorgan's Laws
 ```
@@ -181,10 +195,15 @@ not a /\ not b === not (a \/ b) (Both directions provable)
 
 > A few useful tactics to keep in mind: refine, exact, intros, intuition, eauto, induction, destruct, inversion
 
-expression language --> (Compiled to) Stack machine
-C --> X86 assembly
+### Stack Machine and Expression Language
 
-exp = nat | exp op exp
+expression language --> (Compiled to) Stack machine 
+(Just like C --> X86 assembly)
+
+```
+exp = nat 
+    | exp op exp
+```
 
 ### Stack Machine instructions
 1. push nat
@@ -193,7 +212,7 @@ exp = nat | exp op exp
 
 [Stack Machine compiler](./CoqExamples/expr_to_stack_machine.v)
 
-- To proove that the compiler works as expected we have to express it in coq's language: Gallina (Denotational semantics)
+- To prove that the compiler works as expected we have to express it in coq's language: Gallina (Denotational semantics)
 - The theorem that we want to prove is a weak lemma and thus the induction hypothesis is also weak and not sufficient to prove the theorem.
 - Often in such cases it is easier to prove a more general theorem and then state that the weak lemma is a special case of the more general theorem. That's because the more general theorem also has a more general and powerful induction hypothesis.
 
@@ -234,7 +253,7 @@ Inductive list : forall A:Type, Type -> Type :=
     | cons {A: Type}: A -> list A -> list A.
 ```
 - The above definition is equivalent to the one before except that we didn't have to write Arguments nil {A} etc.
-- But the more interesting part of using index instead of parameters is when we
+But the more interesting part of using index instead of parameters is when we:
 
 - Consider the following expression language with two types of values
 ```coq
@@ -315,6 +334,7 @@ Ltac my_assumption := match goal with
     | Hyp: ?G |- ?G => exact Hyp
 end.
 ```
+[Ltac](./CoqExamples/ltac.v)
 - The match in Ltac is not a pattern matching, but rather a search where if a branch fails, the search continues with the next branch.
 - A typical example of an Ltac script:
 ```coq
