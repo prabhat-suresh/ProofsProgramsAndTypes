@@ -4,3 +4,5 @@ Inductive lte : nat -> nat -> Prop :=
 
 Inductive eq : nat -> nat -> Prop :=
 | eq_refl {n} : eq n n.
+
+Print le.

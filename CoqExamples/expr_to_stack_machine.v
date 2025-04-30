@@ -114,3 +114,14 @@ Theorem correct' (e : exp): forall (st : stack), pDenote (compile e) st = Some (
   rewrite gen_correct.
   unfold pDenote; simpl; trivial.
 Qed.
+
+(* Proving the same compiler using the crush tactic *)
+
+Ltac my_crush := repeat match goal with
+                        | |- _ -> _ => let H := fresh "H" in intro H
+                        | H : _ |- _ => rewrite H
+                        | _ => try (rewrite <- app_assoc); simpl; trivial
+                        end.
+
+Theorem gen_correct' (e : exp): forall (pg : program) (st : stack), pDenote (compile e ++ pg) st = pDenote pg (expDenote e :: st).
+  induction e; my_crush.
